@@ -1,6 +1,6 @@
 [Unit]
 Description=livereel media pipeline control plane
-Documentation=https://github.com/charlie-hk/livereel
+Documentation=https://github.com/charlie-hk/livereel-media-pipeline
 # network-online, not just network: a pipeline with an RTMP or SRT output needs a routable
 # address at start, and plain network.target does not wait for one.
 After=network-online.target
