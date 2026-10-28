@@ -1,0 +1,67 @@
+{
+  "control": {
+    "host": "127.0.0.1",
+    "port": 8787,
+    "token": null
+  },
+
+  "encoder": {
+    "prefer": "h264_nvenc",
+    "probeCache": true
+  },
+
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "bitrate": "6M",
+    "gopSeconds": 2
+  },
+
+  "overlay": {
+    "enabled": true,
+    "fontSize": 36,
+    "fontColor": "white",
+    "x": 48,
+    "y": 48,
+    "box": true,
+    "fontFile": null
+  },
+
+  "obs": {
+    "enabled": false,
+    "url": "ws://127.0.0.1:4455",
+    "password": null,
+    "autoReconnect": true
+  },
+
+  "store": {
+    "driver": "mongodb",
+    "uri": "mongodb://127.0.0.1:27017",
+    "database": "livereel",
+    "telemetryTtlDays": 7
+  },
+
+  "paths": {
+    "roots": {
+      "recordings": {
+        "win32": "${USERPROFILE}\\Videos\\livereel",
+        "linux": "${LIVEREEL_MEDIA:-/var/lib/livereel/recordings}"
+      },
+      "overlays": {
+        "win32": "${LOCALAPPDATA}\\livereel\\overlays",
+        "linux": "${LIVEREEL_STATE:-/var/lib/livereel}/overlays"
+      }
+    }
+  },
+
+  "restart": {
+    "enabled": true,
+    "maxRetries": 10,
+    "baseDelayMs": 1000,
+    "maxDelayMs": 30000,
+    "resetAfterMs": 60000
+  },
+
+  "logLevel": "info"
+}

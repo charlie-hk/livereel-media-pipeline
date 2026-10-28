@@ -1,0 +1,16 @@
+node_modules/
+npm-debug.log*
+
+# Local configuration and secrets
+config/livereel.json
+*.env
+!config/livereel.example.json
+
+# Runtime output
+*.mp4
+*.ts
+*.m3u8
+*.jsonl
+recordings/
+overlays/
+.cache/

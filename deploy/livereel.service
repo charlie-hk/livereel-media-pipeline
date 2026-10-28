@@ -1,0 +1,93 @@
+[Unit]
+Description=livereel media pipeline control plane
+Documentation=https://github.com/charlie-hk/livereel
+# network-online, not just network: a pipeline with an RTMP or SRT output needs a routable
+# address at start, and plain network.target does not wait for one.
+After=network-online.target
+Wants=network-online.target
+
+# Rate limiting belongs to the unit, not the service. Put these under [Service] and systemd
+# parses the file, ignores both keys with a warning, and restarts forever anyway.
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=livereel
+Group=livereel
+
+# systemd creates these with the right ownership and exports their paths in the environment,
+# which is where platform/paths.js picks them up. No mkdir in a prestart script, and nothing
+# writing to a home directory the service user does not have.
+StateDirectory=livereel
+LogsDirectory=livereel
+ConfigurationDirectory=livereel
+RuntimeDirectory=livereel
+
+Environment=NODE_ENV=production
+Environment=LIVEREEL_LOG_JSON=1
+Environment=LIVEREEL_CONFIG=/etc/livereel/livereel.json
+# Secrets stay out of the unit file and out of the config file. Mode 0600, owned by root, read
+# by systemd before it drops to the service user.
+EnvironmentFile=-/etc/livereel/livereel.env
+
+# install.sh rewrites this line with the node binary it actually found, because a nodesource
+# or nvm install is not at /usr/bin/node and systemd will not search PATH for it.
+ExecStart=/usr/bin/node /opt/livereel/src/cli.js serve
+ExecReload=/bin/kill -HUP $MAINPID
+
+Restart=always
+RestartSec=5
+
+KillSignal=SIGTERM
+# Long enough for FFmpeg to finish writing its outputs. The service stops its sessions in
+# parallel, so this is the budget for all of them together, not for each one.
+TimeoutStopSec=45
+# The service signals its own children; systemd should not race it by signalling the whole
+# cgroup, which would cut FFmpeg off mid-trailer.
+KillMode=mixed
+
+# Structured logs on stdout go straight to the journal; `journalctl -u livereel -o cat | jq`
+# reads them without a shipper.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=livereel
+
+# --- Hardening ---------------------------------------------------------------
+# The service runs ffmpeg and gst-launch, so it cannot be locked down as far as a pure network
+# daemon. Each of these was kept only where it does not break a working pipeline; see
+# deploy/hardening.md for what had to be left open and why.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=false
+# ^ false on purpose: v4l2 capture and VAAPI need /dev/video* and /dev/dri. If this host only
+#   transcodes files or reads from the network, set it true and drop DeviceAllow below.
+DeviceAllow=/dev/dri rw
+DeviceAllow=char-video4linux rw
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/livereel /var/log/livereel
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+# ^ false on purpose: some hardware encoder stacks JIT, and NVENC's driver shim trips this.
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+
+# Encoding is CPU-hungry by nature. These are ceilings that keep one runaway session from
+# taking the host down, not targets.
+CPUWeight=100
+MemoryMax=4G
+TasksMax=512
+
+[Install]
+WantedBy=multi-user.target

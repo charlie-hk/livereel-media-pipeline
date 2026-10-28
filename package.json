@@ -1,0 +1,37 @@
+{
+  "name": "livereel",
+  "version": "0.1.0",
+  "description": "Node.js control plane for live media pipelines: supervised FFmpeg and GStreamer encoding, OBS automation, WebSocket control, MongoDB event logging. Runs headless on Linux under systemd, and on Windows for development.",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "livereel": "src/cli.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node src/cli.js serve",
+    "probe": "node src/cli.js probe",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0",
+    "obs-websocket-js": "^5.0.6",
+    "ws": "^8.18.0"
+  },
+  "keywords": [
+    "ffmpeg",
+    "gstreamer",
+    "obs-studio",
+    "nvenc",
+    "websocket",
+    "systemd",
+    "mongodb",
+    "media-pipeline",
+    "live-streaming",
+    "nodejs"
+  ],
+  "author": "Ali Amini",
+  "license": "MIT"
+}
