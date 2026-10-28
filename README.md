@@ -117,8 +117,8 @@ journald-native structured logs.
 ## Quick start
 
 ```bash
-git clone https://github.com/charlie-hk/livereel
-cd livereel
+git clone https://github.com/charlie-hk/livereel-media-pipeline
+cd livereel-media-pipeline
 npm install
 
 # What can this host actually encode?
