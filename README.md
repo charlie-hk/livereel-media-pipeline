@@ -10,7 +10,10 @@ It was built around one problem in particular: a media service that grew up on a
 and has to run on a hardened Ubuntu box instead. Most of what breaks in that move is not the
 media code, and the parts that handle it are called out below.
 
-![Node](https://img.shields.io/badge/node-20%2B-brightgreen) ![FFmpeg](https://img.shields.io/badge/ffmpeg-4.4%20%7C%206.1-blue) ![GStreamer](https://img.shields.io/badge/gstreamer-1.24-blue) ![tests](https://img.shields.io/badge/tests-70%20passing-brightgreen) ![license](https://img.shields.io/badge/license-MIT-lightgrey)
+![Node](https://img.shields.io/badge/node-20%2B-brightgreen) ![FFmpeg](https://img.shields.io/badge/ffmpeg-4.4%20%7C%206.1-blue) ![GStreamer](https://img.shields.io/badge/gstreamer-1.24-blue) ![React](https://img.shields.io/badge/react-18-61dafb) ![TypeScript](https://img.shields.io/badge/typescript-strict-3178c6) ![tests](https://img.shields.io/badge/tests-89%20passing-brightgreen) ![license](https://img.shields.io/badge/license-MIT-lightgrey)
+
+**[Open the control panel](https://charlie-hk.github.io/livereel-media-pipeline/)** — the real
+panel, running against a stand-in service in the browser. Press *Run the demo*.
 
 ---
 
@@ -112,6 +115,12 @@ should cost queryability, not the recording.
 `KillMode=mixed` so the service can finish its own children, restart rate limiting, and
 journald-native structured logs.
 
+**A control panel, not a curl loop.** `web/` is a React and TypeScript panel that speaks the
+same protocol: host capabilities with the reason each encoder was rejected, sessions with
+live telemetry, the overlay edited mid-recording, and OBS scenes. It ships with an in-process
+stand-in service, so the [live demo](https://charlie-hk.github.io/livereel-media-pipeline/)
+runs the real client and the real components with no backend at all. — `web/README.md`
+
 ---
 
 ## Quick start
@@ -199,9 +208,11 @@ src/control/    WebSocket server, wire protocol, OBS client
 src/store/      MongoDB store, file fallback
 src/service.js  lifecycle: probe, sessions, control, persistence
 deploy/         systemd unit, installer, hardening notes
+web/            React control panel (TypeScript, Vite, Tailwind) and its demo stand-in
+docs/           the built panel, served by GitHub Pages
 ```
 
-About 3,400 lines of source and 900 of tests.
+About 3,400 lines of service source and 900 of tests, plus roughly 1,500 lines in the panel.
 
 ---
 
@@ -223,6 +234,7 @@ development host was Ubuntu with no NVIDIA GPU, no OBS, and no MongoDB reachable
 | MongoDB store | **unit-verified only** | Batching, TTL and index specs tested with a stubbed driver. `scripts/verify-mongo.js` checks a live server — not run here, no reachable mongod. |
 | systemd unit | **verified syntactically** | `systemd-analyze verify` passes clean. Not run under a live systemd: no PID-1 systemd in the build environment. |
 | Windows paths and process handling | **unit-verified only** | Logic is covered by tests; not executed on a Windows host. |
+| Control panel | **verified against the stand-in, not against a live service** | 19 tests plus a headless browser run of the production build: connect, probe, start a session, stream telemetry, stop. Driving a real `serve` from a browser is not covered here. |
 
 To close the three gaps yourself:
 

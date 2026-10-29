@@ -7,9 +7,11 @@ config/livereel.json
 !config/livereel.example.json
 
 # Runtime output
+# Note: no bare *.ts here. It would catch MPEG transport streams and every TypeScript file
+# in web/ along with them, which is a confusing way to lose a source tree.
 *.mp4
-*.ts
 *.m3u8
+recordings/**/*.ts
 *.jsonl
 recordings/
 overlays/
