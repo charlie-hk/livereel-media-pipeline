@@ -2,7 +2,7 @@
 
 ![livereel](cover.png)
 
-A Node.js control plane for live media pipelines. It supervises FFmpeg and GStreamer encodes,
+A Node.js control plane for live media pipelines. It supervises FFmpeg and GStreamer encodes, 
 drives OBS Studio over obs-websocket, takes commands on a WebSocket control channel, logs
 sessions and telemetry to MongoDB, and runs headless on Linux under systemd.
 
